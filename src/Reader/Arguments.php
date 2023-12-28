@@ -2,7 +2,7 @@
 
 namespace DoekeNorg\Decreator\Reader;
 
-final class Arguments implements \Stringable
+final class Arguments implements \Stringable, \Countable
 {
     private array $arguments;
 
@@ -17,5 +17,10 @@ final class Arguments implements \Stringable
                 ', ',
                 array_map(fn(Argument $argument): string => (string) $argument, $this->arguments)
             ) . ')';
+    }
+
+    public function count(): int
+    {
+        return count($this->arguments);
     }
 }

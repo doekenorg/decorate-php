@@ -2,6 +2,7 @@
 
 namespace DoekeNorg\Decreator\Tests\Reader;
 
+use Acme\AbstractClass;
 use Acme\BasicInterface;
 use Acme\ExtendingInterface;
 use DoekeNorg\Decreator\Reader\Method;
@@ -21,7 +22,7 @@ final class ReflectionReaderTest extends TestCase
                 'public function untyped_method($argument)',
                 'public function method(string $param_one, ?array $param_two = []): void',
                 'public function variadic_method(string ...$params): string',
-                'public static function static_function(): Acme\\SomeType'
+                'public static function static_function(): \\Acme\\SomeType'
             ],
             array_map(
                 static fn(Method $method): string => (string) $method,
@@ -44,11 +45,27 @@ final class ReflectionReaderTest extends TestCase
                 'public function untyped_method($argument)',
                 'public function method(string $param_one, ?array $param_two = []): void',
                 'public function variadic_method(string ...$params): string',
-                'public static function static_function(): Acme\\SomeType'
+                'public static function static_function(): \\Acme\\SomeType'
             ],
             array_map(
                 static fn(Method $method): string => (string) $method,
                 $reader->getMethods(ExtendingInterface::class),
+            ),
+        );
+    }
+
+    public function test_it_can_read_abstract_classes(): void
+    {
+        require_once dirname(__FILE__, 2) . '/assets/AbstractClass.php';
+        $reader = new ReflectionReader();
+
+        self::assertSame(
+            [
+                'protected function do_action(string $input): void',
+            ],
+            array_map(
+                static fn(Method $method): string => (string) $method,
+                $reader->getMethods(AbstractClass::class),
             ),
         );
     }

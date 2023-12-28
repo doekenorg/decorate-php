@@ -49,4 +49,9 @@ final class Method implements \Stringable
     {
         return $this->is_static;
     }
+
+    public function hasArguments(): bool
+    {
+        return count($this->arguments);
+    }
 }

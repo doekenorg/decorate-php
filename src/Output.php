@@ -18,19 +18,20 @@ final class Output
     {
     }
 
-    public function output(string $interface_name, string $class_name): string
+    public function output(string $source, string $destination): string
     {
-        $methods = $this->reader->getMethods($interface_name);
-        $output = $this->renderNamespace($class_name);
+        $methods = $this->reader->getMethods($source);
+        $output = $this->renderNamespace($destination);
 
         $output .= sprintf(
-            'class %s implements %s {',
-            $this->getBaseClassName($class_name),
-            $this->sanitizeInterfaceName($interface_name),
+            'class %s %s %s {',
+            $this->getBaseClassName($destination),
+            $this->reader->isAbstract($source) ? 'extends' : 'implements',
+            $this->sanitizeInterfaceName($source),
         );
 
-        $output .= $this->renderInnerReference($interface_name);
-        $output .= $this->renderConstructor($interface_name);
+        $output .= $this->renderInnerReference($source);
+        $output .= $this->renderConstructor($source);
 
         foreach ($methods as $method) {
             $output .= $this->renderMethod($method);
@@ -46,10 +47,11 @@ final class Output
         $output = PHP_EOL . "\t" . $method . ' {' . PHP_EOL;
         if (!$method->isStatic()) {
             $output .= "\t\t" . sprintf(
-                    '%s$this->%s->%s(...func_get_args());',
+                    '%s$this->%s->%s(%s);',
                     $method->isVoid() ? '' : 'return ',
                     $this->inner_variable,
-                    $method->name()
+                    $method->name(),
+                    $method->hasArguments() ? '...func_get_args()' : '',
                 ) . PHP_EOL;
         }
         $output .= "\t}" . PHP_EOL;

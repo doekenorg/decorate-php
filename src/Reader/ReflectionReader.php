@@ -11,11 +11,21 @@ final class ReflectionReader implements InterfaceReader
         // todo, wire up autoloader before hand.
     }
 
-    public function getMethods(string $interface_name): array
+    public function getMethods(string $class_name): array
     {
-        $reflection = new \ReflectionClass($interface_name);
+        $class = new \ReflectionClass($class_name);
+        $methods = $class->getMethods();
 
-        return array_map($this->createMethodFromReflection(...), $reflection->getMethods());
+        if ($this->isAbstract($class_name)) {
+            $methods = array_filter($methods, $this->filterFinalMethods(...));
+        }
+
+        return array_values(array_map($this->createMethodFromReflection(...), $methods));
+    }
+
+    private function filterFinalMethods(\ReflectionMethod $method): bool
+    {
+        return !$method->isFinal();
     }
 
     private function createMethodFromReflection(\ReflectionMethod $method): Method
@@ -102,5 +112,21 @@ final class ReflectionReader implements InterfaceReader
         }
 
         return $matches['value'] ?? null;
+    }
+
+    public function isInterface(string $class_name): bool
+    {
+        return class_exists($class_name);
+    }
+
+    public function isAbstract(string $class_name): bool
+    {
+        try {
+            $class = (new \ReflectionClass($class_name));
+
+            return $class->isAbstract() && !$class->isInterface();
+        } catch (\ReflectionException $e) {
+            return false;
+        }
     }
 }
