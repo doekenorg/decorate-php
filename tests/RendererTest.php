@@ -4,23 +4,25 @@ namespace DoekeNorg\Decreator\Tests;
 
 use Acme\AbstractClass;
 use Acme\ExtendingInterface;
-use DoekeNorg\Decreator\Output;
+use DoekeNorg\Decreator\Renderer;
 use DoekeNorg\Decreator\Reader\ReflectionReader;
+use DoekeNorg\Decreator\Request;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Todo: This is an intergration test. Move it over and make a Unit test.
+ * Todo: This is an integration test. Move it over and make a Unit test.
+ * Todo: test for spaces and tabs.
  * Todo: Clean up this test, it has too much duplication.
  */
-final class OutputTest extends TestCase
+final class RendererTest extends TestCase
 {
     public function testOutput(): void
     {
         require_once __DIR__ . '/assets/BasicInterface.php';
         require_once __DIR__ . '/assets/ExtendingInterface.php';
 
-        $output = new Output(new ReflectionReader());
-        $php = $output->output(ExtendingInterface::class, \Acme\DecoratingClass::class);
+        $output = new Renderer(new ReflectionReader());
+        $php = $output->output(new Request(ExtendingInterface::class, \Acme\DecoratingClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {
@@ -44,8 +46,8 @@ final class OutputTest extends TestCase
     {
         require_once __DIR__ . '/assets/AbstractClass.php';
 
-        $output = new Output(new ReflectionReader());
-        $php = $output->output(AbstractClass::class, \Acme\DecoratingAbstractClass::class);
+        $output = new Renderer(new ReflectionReader());
+        $php = $output->output(new Request(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {

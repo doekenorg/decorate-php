@@ -10,7 +10,7 @@ use DoekeNorg\Decreator\Reader\Method;
  *  - output should be configurable as abstract or final.
  *  - The name of the inner variable should be configurable.
  */
-final class Output
+final class Renderer
 {
     private string $inner_variable = 'inner';
 
@@ -18,23 +18,30 @@ final class Output
     {
     }
 
-    public function output(string $source, string $destination): string
+    public function output(Request $request): string
     {
-        $methods = $this->reader->getMethods($source);
-        $output = $this->renderNamespace($destination);
+        $methods = $this->reader->getMethods($source = $request->source());
+        $output = $this->renderNamespace($destination = $request->destination());
 
-        $output .= sprintf(
-            'class %s %s %s {',
-            $this->getBaseClassName($destination),
-            $this->reader->isAbstract($source) ? 'extends' : 'implements',
-            $this->sanitizeInterfaceName($source),
+        $output .= trim(
+            sprintf(
+                '%s class %s %s %s {',
+                $request->type(),
+                $this->getBaseClassName($destination),
+                $this->reader->isAbstract($source) ? 'extends' : 'implements',
+                $this->sanitizeInterfaceName($source),
+            )
         );
 
-        $output .= $this->renderInnerReference($source);
-        $output .= $this->renderConstructor($source);
+        $output .= $this->renderInnerReference($request);
+        $output .= $this->renderConstructor($request);
 
         foreach ($methods as $method) {
-            $output .= $this->renderMethod($method);
+            $output .= $this->renderMethod($request, $method);
+        }
+
+        if ($spaces = $request->spaces()) {
+            $output = str_replace("\t", str_repeat(' ', $spaces), $output);
         }
 
         $output .= '}';
@@ -42,14 +49,14 @@ final class Output
         return $output;
     }
 
-    private function renderMethod(Method $method): string
+    private function renderMethod(Request $request, Method $method): string
     {
         $output = PHP_EOL . "\t" . $method . ' {' . PHP_EOL;
         if (!$method->isStatic()) {
             $output .= "\t\t" . sprintf(
                     '%s$this->%s->%s(%s);',
                     $method->isVoid() ? '' : 'return ',
-                    $this->inner_variable,
+                    $request->variable(),
                     $method->name(),
                     $method->hasArguments() ? '...func_get_args()' : '',
                 ) . PHP_EOL;
@@ -59,25 +66,25 @@ final class Output
         return $output;
     }
 
-    private function renderInnerReference(string $interface_name): string
+    private function renderInnerReference(Request $request): string
     {
         return PHP_EOL . "\t" . sprintf(
                 'private %s $%s;',
-                $this->sanitizeInterfaceName($interface_name),
-                $this->inner_variable
+                $this->sanitizeInterfaceName($request->source()),
+                $request->variable(),
             ) . PHP_EOL . PHP_EOL;
     }
 
     //Todo: constructor can be part of the interface.
-    private function renderConstructor(string $interface_name): string
+    private function renderConstructor(Request $request): string
     {
         $output = sprintf(
                 "\tpublic function __construct(%s $%s) {",
-                $this->sanitizeInterfaceName($interface_name),
-                $this->inner_variable,
+                $this->sanitizeInterfaceName($request->source()),
+                $request->variable(),
             ) . PHP_EOL;
 
-        $output .= "\t\t" . sprintf('$this->%s = $%s;', $this->inner_variable, $this->inner_variable) . PHP_EOL;
+        $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
         $output .= "\t}" . PHP_EOL;
 
         return $output;
