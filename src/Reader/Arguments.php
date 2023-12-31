@@ -2,7 +2,10 @@
 
 namespace DoekeNorg\Decreator\Reader;
 
-final class Arguments implements \Stringable, \Countable
+use ArrayIterator;
+use Traversable;
+
+final class Arguments implements \Stringable, \Countable, \IteratorAggregate
 {
     private array $arguments;
 
@@ -15,12 +18,17 @@ final class Arguments implements \Stringable, \Countable
     {
         return '(' . implode(
                 ', ',
-                array_map(fn(Argument $argument): string => (string) $argument, $this->arguments)
+                array_map(static fn(Argument $argument): string => (string) $argument, $this->arguments)
             ) . ')';
     }
 
     public function count(): int
     {
         return count($this->arguments);
+    }
+
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->arguments);
     }
 }

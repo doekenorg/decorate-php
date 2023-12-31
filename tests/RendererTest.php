@@ -12,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 /**
  * Todo: This is an integration test. Move it over and make a Unit test.
  * Todo: test for spaces and tabs.
- * Todo: Clean up this test, it has too much duplication.
  */
 final class RendererTest extends TestCase
 {

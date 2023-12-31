@@ -83,7 +83,10 @@ final class DecorateCommand extends BaseCommand
     {
         if (!isset($this->config)) {
             $this->config = [];
-            $composer = $this->tryComposer();
+            if (!$composer = $this->tryComposer()) {
+                return $this->config;
+            }
+
             $global_composer_file = file_get_contents($composer->getConfig()->get('home') . '/composer.json');
             if (is_string($global_composer_file)) {
                 $global_composer_json = json_decode($global_composer_file, true);

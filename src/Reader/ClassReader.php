@@ -2,7 +2,7 @@
 
 namespace DoekeNorg\Decreator\Reader;
 
-interface InterfaceReader
+interface ClassReader
 {
     /**
      * @return Method[]

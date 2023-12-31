@@ -51,13 +51,9 @@ final class Request
         return $this->spaces;
     }
 
-    public function type(): string
+    public function type(): ClassType
     {
-        return match ($this->class_type) {
-            ClassType::Abstract => 'abstract',
-            ClassType::Final => 'final',
-            default => '',
-        };
+        return $this->class_type;
     }
 
     public function withVariable(string $variable): self

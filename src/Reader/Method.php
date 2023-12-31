@@ -6,7 +6,7 @@ namespace DoekeNorg\Decreator\Reader;
  * Represents a method on the interface.
  * @since $ver$
  */
-final class Method implements \Stringable
+final class Method implements \Stringable, \IteratorAggregate
 {
     public function __construct(
         private readonly string $name,
@@ -27,7 +27,7 @@ final class Method implements \Stringable
             . ' function '
             . $this->name
             . $this->arguments
-            . $this->returnType();
+            . ($this->return_type ? ': ' . $this->return_type : '');
     }
 
     public function name(): string
@@ -37,7 +37,7 @@ final class Method implements \Stringable
 
     public function returnType(): string
     {
-        return $this->return_type ? ': ' . $this->return_type : '';
+        return $this->return_type ?? '';
     }
 
     public function isVoid(): bool
@@ -53,5 +53,10 @@ final class Method implements \Stringable
     public function hasArguments(): bool
     {
         return count($this->arguments);
+    }
+
+    public function getIterator(): \Traversable
+    {
+        return $this->arguments;
     }
 }

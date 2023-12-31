@@ -15,10 +15,15 @@ final class Argument implements \Stringable
     public function __toString(): string
     {
         return trim(
-            ($this->type ? $this->type : '') . ' '
+            ($this->type ?: '') . ' '
             . ($this->is_variadic ? '...' : '')
             . '$' . $this->name
             . ($this->default_value ? ' = ' . $this->default_value : '')
         );
+    }
+
+    public function type(): string
+    {
+        return (string) $this->type;
     }
 }

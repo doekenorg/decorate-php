@@ -2,14 +2,9 @@
 
 namespace DoekeNorg\Decreator\Reader;
 
-final class ReflectionReader implements InterfaceReader
+final class ReflectionReader implements ClassReader
 {
     private const TYPE_VALUE_REGEX = '/Parameter #\d+ \[ \<\w+> (?<type>\S+) \S+? (= (?<value>\S+) )?\]/is';
-
-    public function __construct()
-    {
-        // todo, wire up autoloader before hand.
-    }
 
     public function getMethods(string $class_name): array
     {
@@ -17,13 +12,13 @@ final class ReflectionReader implements InterfaceReader
         $methods = $class->getMethods();
 
         if ($this->isAbstract($class_name)) {
-            $methods = array_filter($methods, $this->filterFinalMethods(...));
+            $methods = array_filter($methods, $this->removeFinalMethods(...));
         }
 
         return array_values(array_map($this->createMethodFromReflection(...), $methods));
     }
 
-    private function filterFinalMethods(\ReflectionMethod $method): bool
+    private function removeFinalMethods(\ReflectionMethod $method): bool
     {
         return !$method->isFinal();
     }
@@ -116,7 +111,7 @@ final class ReflectionReader implements InterfaceReader
 
     public function isInterface(string $class_name): bool
     {
-        return class_exists($class_name);
+        return interface_exists($class_name);
     }
 
     public function isAbstract(string $class_name): bool
