@@ -1,8 +1,8 @@
 <?php
 
-namespace DoekeNorg\Decreator\Renderer;
+namespace DoekeNorg\DecoratePhp\Renderer;
 
-use DoekeNorg\Decreator\Request;
+use DoekeNorg\DecoratePhp\Request;
 
 interface Renderer
 {

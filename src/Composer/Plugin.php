@@ -1,6 +1,6 @@
 <?php
 
-namespace DoekeNorg\Decreator\Composer;
+namespace DoekeNorg\DecoratePhp\Composer;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
@@ -26,7 +26,7 @@ final class Plugin implements PluginInterface, Capable
     public function getCapabilities(): array
     {
         return [
-            CommandProvider::class => DecreateCommandProvider::class,
+            CommandProvider::class => DecoratePhpCommands::class,
         ];
     }
 }

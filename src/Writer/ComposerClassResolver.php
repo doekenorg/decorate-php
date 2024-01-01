@@ -1,6 +1,6 @@
 <?php
 
-namespace DoekeNorg\Decreator\Writer;
+namespace DoekeNorg\DecoratePhp\Writer;
 
 use Composer\Composer;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace DoekeNorg\Decreator\Composer;
+namespace DoekeNorg\DecoratePhp\Composer;
 
-use DoekeNorg\Decreator\DecoratorException;
+use DoekeNorg\DecoratePhp\DecoratorException;
 
 final class ComposerNotFound extends DecoratorException
 {

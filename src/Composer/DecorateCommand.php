@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace DoekeNorg\Decreator\Composer;
+namespace DoekeNorg\DecoratePhp\Composer;
 
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
-use DoekeNorg\Decreator\DecoratorException;
-use DoekeNorg\Decreator\Reader\ReflectionReader;
-use DoekeNorg\Decreator\Renderer\PhpClassRenderer;
-use DoekeNorg\Decreator\Request;
-use DoekeNorg\Decreator\Writer\ComposerClassResolver;
-use DoekeNorg\Decreator\Writer\PhpClassWriter;
+use DoekeNorg\DecoratePhp\DecoratorException;
+use DoekeNorg\DecoratePhp\Reader\ReflectionReader;
+use DoekeNorg\DecoratePhp\Renderer\PhpClassRenderer;
+use DoekeNorg\DecoratePhp\Request;
+use DoekeNorg\DecoratePhp\Writer\ComposerClassResolver;
+use DoekeNorg\DecoratePhp\Writer\PhpClassWriter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

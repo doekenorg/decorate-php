@@ -1,11 +1,11 @@
 <?php
 
-namespace DoekeNorg\Decreator\Renderer;
+namespace DoekeNorg\DecoratePhp\Renderer;
 
-use DoekeNorg\Decreator\ClassType;
-use DoekeNorg\Decreator\Reader\ClassReader;
-use DoekeNorg\Decreator\Reader\Method;
-use DoekeNorg\Decreator\Request;
+use DoekeNorg\DecoratePhp\ClassType;
+use DoekeNorg\DecoratePhp\Reader\ClassReader;
+use DoekeNorg\DecoratePhp\Reader\Method;
+use DoekeNorg\DecoratePhp\Request;
 
 final class PhpClassRenderer implements Renderer
 {

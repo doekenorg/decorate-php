@@ -1,12 +1,12 @@
 <?php
 
-namespace DoekeNorg\Decreator\Tests\Reader;
+namespace DoekeNorg\DecoratePhp\Tests\Reader;
 
 use Acme\AbstractClass;
 use Acme\BasicInterface;
 use Acme\ExtendingInterface;
-use DoekeNorg\Decreator\Reader\Method;
-use DoekeNorg\Decreator\Reader\ReflectionReader;
+use DoekeNorg\DecoratePhp\Reader\Method;
+use DoekeNorg\DecoratePhp\Reader\ReflectionReader;
 use PHPUnit\Framework\TestCase;
 
 final class ReflectionReaderTest extends TestCase

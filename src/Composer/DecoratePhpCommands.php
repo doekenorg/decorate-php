@@ -1,10 +1,10 @@
 <?php
 
-namespace DoekeNorg\Decreator\Composer;
+namespace DoekeNorg\DecoratePhp\Composer;
 
 use Composer\Plugin\Capability\CommandProvider;
 
-final class DecreateCommandProvider implements CommandProvider
+final class DecoratePhpCommands implements CommandProvider
 {
     public function getCommands(): array
     {

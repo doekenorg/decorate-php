@@ -1,8 +1,8 @@
 <?php
 
-namespace DoekeNorg\Decreator\Writer;
+namespace DoekeNorg\DecoratePhp\Writer;
 
-use DoekeNorg\Decreator\DecoratorException;
+use DoekeNorg\DecoratePhp\DecoratorException;
 
 final class CouldNotWriteFile extends DecoratorException
 {

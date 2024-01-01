@@ -1,11 +1,11 @@
 <?php
 
-namespace DoekeNorg\Decreator\Tests\Reader;
+namespace DoekeNorg\DecoratePhp\Tests\Reader;
 
-use DoekeNorg\Decreator\Reader\Argument;
-use DoekeNorg\Decreator\Reader\Arguments;
-use DoekeNorg\Decreator\Reader\Method;
-use DoekeNorg\Decreator\Reader\Visibility;
+use DoekeNorg\DecoratePhp\Reader\Argument;
+use DoekeNorg\DecoratePhp\Reader\Arguments;
+use DoekeNorg\DecoratePhp\Reader\Method;
+use DoekeNorg\DecoratePhp\Reader\Visibility;
 use PHPUnit\Framework\TestCase;
 
 final class MethodTest extends TestCase

@@ -1,6 +1,6 @@
 <?php
 
-namespace DoekeNorg\Decreator\Reader;
+namespace DoekeNorg\DecoratePhp\Reader;
 
 final class ReflectionReader implements ClassReader
 {

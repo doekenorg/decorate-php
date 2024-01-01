@@ -1,6 +1,6 @@
 <?php
 
-namespace DoekeNorg\Decreator\Reader;
+namespace DoekeNorg\DecoratePhp\Reader;
 
 /**
  * Represents a method on the interface.

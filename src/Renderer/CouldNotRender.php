@@ -1,8 +1,8 @@
 <?php
 
-namespace DoekeNorg\Decreator\Renderer;
+namespace DoekeNorg\DecoratePhp\Renderer;
 
-use DoekeNorg\Decreator\DecoratorException;
+use DoekeNorg\DecoratePhp\DecoratorException;
 
 final class CouldNotRender extends DecoratorException
 {
