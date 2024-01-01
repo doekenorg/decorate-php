@@ -12,8 +12,12 @@ final class RenderRequest
 
     private bool $use_property_promotion = true;
 
-    public function __construct(private string $source, private string $destination)
-    {
+    private bool $use_func_get_args = false;
+
+    public function __construct(
+        private readonly string $source,
+        private readonly string $destination,
+    ) {
         $this->class_type = ClassType::Normal;
     }
 
@@ -63,6 +67,11 @@ final class RenderRequest
         return $this->use_property_promotion;
     }
 
+    public function useFuncGetArgs(): bool
+    {
+        return $this->use_func_get_args;
+    }
+
     public function withVariable(string $variable): self
     {
         $clone = clone $this;
@@ -87,6 +96,14 @@ final class RenderRequest
     {
         $clone = clone $this;
         $clone->use_property_promotion = false;
+
+        return $clone;
+    }
+
+    public function withFuncGetArgs(): self
+    {
+        $clone = clone $this;
+        $clone->use_func_get_args = true;
 
         return $clone;
     }

@@ -22,6 +22,7 @@ final class RendererTest extends TestCase
 
         $output = new PhpClassRenderer(new ReflectionReader());
         $php = $output->render(new RenderRequest(ExtendingInterface::class, \Acme\DecoratingClass::class));
+        $php = strtr($php, ['<?php' => '', '?>' => '']);
 
         // Don't try this at home kids.
         (static function (string $php): void {
@@ -48,6 +49,7 @@ final class RendererTest extends TestCase
         $output = new PhpClassRenderer(new ReflectionReader());
         $php = $output->render(new RenderRequest(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
 
+        $php = strtr($php, ['<?php' => '', '?>' => '']);
         // Don't try this at home kids.
         (static function (string $php): void {
             eval($php);

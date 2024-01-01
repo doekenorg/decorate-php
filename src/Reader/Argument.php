@@ -26,4 +26,9 @@ final class Argument implements \Stringable
     {
         return (string) $this->type;
     }
+
+    public function variable(): string
+    {
+        return ($this->is_variadic ? '...' : '') . '$' . $this->name;
+    }
 }

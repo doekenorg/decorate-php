@@ -101,6 +101,10 @@ final class DecorateCommand extends BaseCommand
             $request = $request->withoutPropertyPromotion();
         }
 
+        if ($this->useFuncGetArgs()) {
+            $request = $request->withFuncGetArgs();
+        }
+
         return $request
             ->withVariable($input->getArgument('variable') ?? $config['variable'] ?? 'inner')
             ->withSpaces($this->getSpaces($input));
@@ -163,5 +167,11 @@ final class DecorateCommand extends BaseCommand
         $config = $this->getConfig();
 
         return (bool) ($config['use-property-promotion'] ?? true);
+    }
+
+    private function useFuncGetArgs(): bool
+    {
+        $config = $this->getConfig();
+        return (bool) ($config['use-func-get-args'] ?? false);
     }
 }

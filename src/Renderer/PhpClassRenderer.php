@@ -2,6 +2,7 @@
 
 namespace DoekeNorg\DecoratePhp\Renderer;
 
+use DoekeNorg\DecoratePhp\Reader\Argument;
 use DoekeNorg\DecoratePhp\Reader\ClassReader;
 use DoekeNorg\DecoratePhp\Reader\Method;
 
@@ -75,7 +76,7 @@ final class PhpClassRenderer implements Renderer
                     $method->isVoid() ? '' : 'return ',
                     $request->variable(),
                     $method->name(),
-                    $method->hasArguments() ? '...func_get_args()' : '',
+                    $this->getArguments($request, $method),
                 ) . PHP_EOL;
         }
         $output .= "\t}" . PHP_EOL;
@@ -191,5 +192,24 @@ final class PhpClassRenderer implements Renderer
         }
 
         return $output . PHP_EOL;
+    }
+
+    private function getArguments(RenderRequest $request, Method $method): string
+    {
+        if (!$method->hasArguments()) {
+            return '';
+        }
+
+        if ($request->useFuncGetArgs()) {
+            return '...func_get_args()';
+        }
+
+        return implode(
+            ', ',
+            array_map(
+                static fn(Argument $argument): string => $argument->variable(),
+                iterator_to_array($method),
+            ),
+        );
     }
 }
