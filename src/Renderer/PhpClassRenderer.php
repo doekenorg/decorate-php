@@ -1,11 +1,13 @@
 <?php
 
-namespace DoekeNorg\Decreator;
+namespace DoekeNorg\Decreator\Renderer;
 
+use DoekeNorg\Decreator\ClassType;
 use DoekeNorg\Decreator\Reader\ClassReader;
 use DoekeNorg\Decreator\Reader\Method;
+use DoekeNorg\Decreator\Request;
 
-final class Renderer
+final class PhpClassRenderer implements Renderer
 {
     private array $class_names = [];
 
@@ -13,8 +15,12 @@ final class Renderer
     {
     }
 
-    public function output(Request $request): string
+    public function render(Request $request): string
     {
+        if ($this->reader->isFinal($request->source())) {
+            throw new CouldNotRender('Final classes cannot be decorated');
+        }
+
         $this->class_names = [];
 
         $methods = $this->reader->getMethods($source = $request->source());
@@ -41,12 +47,18 @@ final class Renderer
             $output = str_replace("\t", str_repeat(' ', $spaces), $output);
         }
 
-        $output .= '}';
+        $output .= '}' . PHP_EOL;
 
-        $output = strtr($output, $this->class_names);
+        $replacements = [];
+        foreach ($this->class_names as $class_name => $replacement) {
+            $replacements[$class_name] = $replacement;
+            $replacements['\\' . $class_name] = $replacement;
+        }
+
+        $output = strtr($output, $replacements);
         $uses = $this->renderUse($destination);
 
-        return $namespaces . $uses . $output;
+        return '<?php' . PHP_EOL . $namespaces . $uses . $output;
     }
 
     private function renderMethod(Request $request, Method $method): string
@@ -123,9 +135,10 @@ final class Renderer
     private function recordClasses(string $class_name): void
     {
         $class_name = str_replace('?', '', $class_name);
-        if (in_array(trim($class_name), ['', 'string', 'array', 'int', 'void', 'float'])) {
+        if (in_array(trim($class_name), ['', 'bool', 'string', 'array', 'int', 'void', 'float'])) {
             return;
         }
+
         $class_name = trim($class_name, '\\');
 
         $base_name = $this->getBaseClassName($class_name);

@@ -1,0 +1,16 @@
+<?php
+
+namespace DoekeNorg\Decreator\Writer;
+
+use DoekeNorg\Decreator\DecoratorException;
+
+final class PathNotFound extends DecoratorException
+{
+    public function __construct(
+        string $message = 'Path could not be resolved.',
+        int $code = 0,
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $previous);
+    }
+}

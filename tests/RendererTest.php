@@ -4,8 +4,8 @@ namespace DoekeNorg\Decreator\Tests;
 
 use Acme\AbstractClass;
 use Acme\ExtendingInterface;
-use DoekeNorg\Decreator\Renderer;
 use DoekeNorg\Decreator\Reader\ReflectionReader;
+use DoekeNorg\Decreator\Renderer\PhpClassRenderer;
 use DoekeNorg\Decreator\Request;
 use PHPUnit\Framework\TestCase;
 
@@ -20,8 +20,8 @@ final class RendererTest extends TestCase
         require_once __DIR__ . '/assets/BasicInterface.php';
         require_once __DIR__ . '/assets/ExtendingInterface.php';
 
-        $output = new Renderer(new ReflectionReader());
-        $php = $output->output(new Request(ExtendingInterface::class, \Acme\DecoratingClass::class));
+        $output = new PhpClassRenderer(new ReflectionReader());
+        $php = $output->render(new Request(ExtendingInterface::class, \Acme\DecoratingClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {
@@ -45,8 +45,8 @@ final class RendererTest extends TestCase
     {
         require_once __DIR__ . '/assets/AbstractClass.php';
 
-        $output = new Renderer(new ReflectionReader());
-        $php = $output->output(new Request(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
+        $output = new PhpClassRenderer(new ReflectionReader());
+        $php = $output->render(new Request(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {

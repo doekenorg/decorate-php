@@ -7,9 +7,12 @@ namespace DoekeNorg\Decreator\Composer;
 use Composer\Command\BaseCommand;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
-use DoekeNorg\Decreator\Renderer;
+use DoekeNorg\Decreator\DecoratorException;
 use DoekeNorg\Decreator\Reader\ReflectionReader;
+use DoekeNorg\Decreator\Renderer\PhpClassRenderer;
 use DoekeNorg\Decreator\Request;
+use DoekeNorg\Decreator\Writer\ComposerClassResolver;
+use DoekeNorg\Decreator\Writer\PhpClassWriter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -38,6 +41,12 @@ final class DecorateCommand extends BaseCommand
             'Whether the code should be return, instead of created.'
         );
         $this->addOption(
+            'overwrite',
+            'w',
+            InputOption::VALUE_NONE,
+            'Whether the class should be written, even if the file exists.'
+        );
+        $this->addOption(
             'spaces',
             's',
             InputOption::VALUE_OPTIONAL,
@@ -48,18 +57,31 @@ final class DecorateCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $renderer = new Renderer(new ReflectionReader());
+        try {
+            $renderer = new PhpClassRenderer(new ReflectionReader());
+            $request = $this->createRequest($input);
 
-        $request = $this->createRequest($input);
-        $result = $renderer->output($request);
+            $result = $renderer->render($request);
 
-        if ($input->getOption('output')) {
-            $output->write($result);
-        } else {
-            // todo: write to file.
+            if ($input->getOption('output')) {
+                $output->write($result);
+                return self::SUCCESS;
+            }
+
+            if (!$composer = $this->tryComposer()) {
+                throw new ComposerNotFound();
+            }
+
+            $writer = new PhpClassWriter(new ComposerClassResolver($composer));
+            $writer->writeClass($request->destination(), $result, $input->getOption('overwrite'));
+
+            $output->writeln('Decorator created successfully');
+
+            return self::SUCCESS;
+        } catch (DecoratorException $e) {
+            $output->writeln($e->getMessage());
+            return self::FAILURE;
         }
-
-        return self::SUCCESS;
     }
 
     private function createRequest(InputInterface $input): Request
@@ -90,6 +112,9 @@ final class DecorateCommand extends BaseCommand
             $global_composer_file = file_get_contents($composer->getConfig()->get('home') . '/composer.json');
             if (is_string($global_composer_file)) {
                 $global_composer_json = json_decode($global_composer_file, true);
+
+                // Use autoload paths to find write paths.
+                //var_Dump($composer->getPackage()->getAutoload());
                 $this->config = $global_composer_json['extra']['decorate'] ?? [];
             }
         }

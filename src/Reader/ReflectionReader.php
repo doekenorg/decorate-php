@@ -120,7 +120,16 @@ final class ReflectionReader implements ClassReader
             $class = (new \ReflectionClass($class_name));
 
             return $class->isAbstract() && !$class->isInterface();
-        } catch (\ReflectionException $e) {
+        } catch (\ReflectionException) {
+            return false;
+        }
+    }
+
+    public function isFinal(string $class_name): bool
+    {
+        try {
+            return (new \ReflectionClass($class_name))->isFinal();
+        } catch (\ReflectionException) {
             return false;
         }
     }
