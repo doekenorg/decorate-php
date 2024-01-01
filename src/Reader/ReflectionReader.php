@@ -2,13 +2,20 @@
 
 namespace DoekeNorg\DecoratePhp\Reader;
 
+use ReflectionException;
+
 final class ReflectionReader implements ClassReader
 {
     private const TYPE_VALUE_REGEX = '/Parameter #\d+ \[ \<\w+> (?<type>\S+) \S+? (= (?<value>\S+) )?\]/is';
 
     public function getMethods(string $class_name): array
     {
-        $class = new \ReflectionClass($class_name);
+        try {
+            $class = new \ReflectionClass($class_name);
+        } catch (ReflectionException) {
+            throw new ClassNotFound();
+        }
+
         $methods = $class->getMethods();
 
         if ($this->isAbstract($class_name)) {

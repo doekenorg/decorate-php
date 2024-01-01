@@ -2,10 +2,8 @@
 
 namespace DoekeNorg\DecoratePhp\Renderer;
 
-use DoekeNorg\DecoratePhp\ClassType;
 use DoekeNorg\DecoratePhp\Reader\ClassReader;
 use DoekeNorg\DecoratePhp\Reader\Method;
-use DoekeNorg\DecoratePhp\Request;
 
 final class PhpClassRenderer implements Renderer
 {
@@ -15,7 +13,7 @@ final class PhpClassRenderer implements Renderer
     {
     }
 
-    public function render(Request $request): string
+    public function render(RenderRequest $request): string
     {
         if ($this->reader->isFinal($request->source())) {
             throw new CouldNotRender('Final classes cannot be decorated');
@@ -36,7 +34,9 @@ final class PhpClassRenderer implements Renderer
             )
         );
 
-        $output .= $this->renderInnerReference($request);
+        if (!$request->usePropertyPromotion()) {
+            $output .= $this->renderInnerReference($request);
+        }
         $output .= $this->renderConstructor($request);
 
         foreach ($methods as $method) {
@@ -61,7 +61,7 @@ final class PhpClassRenderer implements Renderer
         return '<?php' . PHP_EOL . $namespaces . $uses . $output;
     }
 
-    private function renderMethod(Request $request, Method $method): string
+    private function renderMethod(RenderRequest $request, Method $method): string
     {
         $this->recordClasses($method->returnType());
         foreach ($method as $argument) {
@@ -83,25 +83,33 @@ final class PhpClassRenderer implements Renderer
         return $output;
     }
 
-    private function renderInnerReference(Request $request): string
+    private function renderInnerReference(RenderRequest $request): string
     {
         return PHP_EOL . "\t" . sprintf(
-                'private %s $%s;',
-                $this->sanitizeClassName($request->source()),
-                $request->variable(),
-            ) . PHP_EOL . PHP_EOL;
-    }
-
-    //Todo: constructor can be part of the interface.
-    private function renderConstructor(Request $request): string
-    {
-        $output = sprintf(
-                "\tpublic function __construct(%s $%s) {",
+                '%s %s $%s;',
+                $request->type() === ClassType::Abstract ? 'protected' : 'private',
                 $this->sanitizeClassName($request->source()),
                 $request->variable(),
             ) . PHP_EOL;
+    }
 
-        $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
+    //Todo: constructor can be part of the interface.
+    private function renderConstructor(RenderRequest $request): string
+    {
+        $type = '';
+        if ($request->usePropertyPromotion()) {
+            $type = $request->type() === ClassType::Abstract ? 'protected' : 'private';
+        }
+        $type .= ' ' . $this->sanitizeClassName($request->source());
+        $output = PHP_EOL . sprintf(
+                "\tpublic function __construct(%s $%s) {",
+                trim($type),
+                $request->variable(),
+            ) . PHP_EOL;
+
+        if (!$request->usePropertyPromotion()) {
+            $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
+        }
         $output .= "\t}" . PHP_EOL;
 
         return $output;
@@ -155,7 +163,7 @@ final class PhpClassRenderer implements Renderer
         return $class_name;
     }
 
-    private function getClassType(Request $request): string
+    private function getClassType(RenderRequest $request): string
     {
         return match ($request->type()) {
             ClassType::Abstract => 'abstract',

@@ -6,7 +6,7 @@ use Acme\AbstractClass;
 use Acme\ExtendingInterface;
 use DoekeNorg\DecoratePhp\Reader\ReflectionReader;
 use DoekeNorg\DecoratePhp\Renderer\PhpClassRenderer;
-use DoekeNorg\DecoratePhp\Request;
+use DoekeNorg\DecoratePhp\Renderer\RenderRequest;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -21,7 +21,7 @@ final class RendererTest extends TestCase
         require_once __DIR__ . '/assets/ExtendingInterface.php';
 
         $output = new PhpClassRenderer(new ReflectionReader());
-        $php = $output->render(new Request(ExtendingInterface::class, \Acme\DecoratingClass::class));
+        $php = $output->render(new RenderRequest(ExtendingInterface::class, \Acme\DecoratingClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {
@@ -46,7 +46,7 @@ final class RendererTest extends TestCase
         require_once __DIR__ . '/assets/AbstractClass.php';
 
         $output = new PhpClassRenderer(new ReflectionReader());
-        $php = $output->render(new Request(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
+        $php = $output->render(new RenderRequest(AbstractClass::class, \Acme\DecoratingAbstractClass::class));
 
         // Don't try this at home kids.
         (static function (string $php): void {

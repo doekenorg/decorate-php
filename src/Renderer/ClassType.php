@@ -1,6 +1,6 @@
 <?php
 
-namespace DoekeNorg\DecoratePhp;
+namespace DoekeNorg\DecoratePhp\Renderer;
 
 enum ClassType
 {

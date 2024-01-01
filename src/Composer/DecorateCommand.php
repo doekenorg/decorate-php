@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace DoekeNorg\DecoratePhp\Composer;
 
 use Composer\Command\BaseCommand;
+use Composer\Composer;
 use Composer\Console\Input\InputArgument;
 use Composer\Console\Input\InputOption;
 use DoekeNorg\DecoratePhp\DecoratorException;
 use DoekeNorg\DecoratePhp\Reader\ReflectionReader;
 use DoekeNorg\DecoratePhp\Renderer\PhpClassRenderer;
-use DoekeNorg\DecoratePhp\Request;
+use DoekeNorg\DecoratePhp\Renderer\RenderRequest;
 use DoekeNorg\DecoratePhp\Writer\ComposerClassResolver;
 use DoekeNorg\DecoratePhp\Writer\PhpClassWriter;
 use Symfony\Component\Console\Input\InputInterface;
@@ -68,7 +69,7 @@ final class DecorateCommand extends BaseCommand
                 return self::SUCCESS;
             }
 
-            if (!$composer = $this->tryComposer()) {
+            if (!$composer = $this->retrieveComposer()) {
                 throw new ComposerNotFound();
             }
 
@@ -84,17 +85,21 @@ final class DecorateCommand extends BaseCommand
         }
     }
 
-    private function createRequest(InputInterface $input): Request
+    private function createRequest(InputInterface $input): RenderRequest
     {
         $config = $this->getConfig();
         $base_class = $input->getArgument('base-class');
         $destination_class = $input->getArgument('destination-class');
 
         $request = match (true) {
-            $input->getOption('final') => Request::asFinal($base_class, $destination_class),
-            $input->getOption('abstract') => Request::asAbstract($base_class, $destination_class),
-            default => new Request($base_class, $destination_class),
+            $input->getOption('final') => RenderRequest::asFinal($base_class, $destination_class),
+            $input->getOption('abstract') => RenderRequest::asAbstract($base_class, $destination_class),
+            default => new RenderRequest($base_class, $destination_class),
         };
+
+        if (!$this->usePropertyPromotion()) {
+            $request = $request->withoutPropertyPromotion();
+        }
 
         return $request
             ->withVariable($input->getArgument('variable') ?? $config['variable'] ?? 'inner')
@@ -105,17 +110,18 @@ final class DecorateCommand extends BaseCommand
     {
         if (!isset($this->config)) {
             $this->config = [];
-            if (!$composer = $this->tryComposer()) {
+            if (!$composer = $this->retrieveComposer()) {
                 return $this->config;
             }
 
             $global_composer_file = file_get_contents($composer->getConfig()->get('home') . '/composer.json');
             if (is_string($global_composer_file)) {
-                $global_composer_json = json_decode($global_composer_file, true);
-
-                // Use autoload paths to find write paths.
-                //var_Dump($composer->getPackage()->getAutoload());
-                $this->config = $global_composer_json['extra']['decorate'] ?? [];
+                try {
+                    $global_composer_json = json_decode($global_composer_file, true, 512, JSON_THROW_ON_ERROR);
+                    $this->config = $global_composer_json['extra']['decorate-php'] ?? [];
+                } catch (\JsonException) {
+                    // fall through
+                }
             }
         }
 
@@ -141,5 +147,21 @@ final class DecorateCommand extends BaseCommand
         $spaces ??= $config['spaces'] ?? 4;
 
         return (int) $spaces;
+    }
+
+    private function retrieveComposer(): ?Composer
+    {
+        if (method_exists($this, 'requireComposer')) {
+            return $this->requireComposer();
+        }
+
+        return $this->getComposer(true);
+    }
+
+    private function usePropertyPromotion(): bool
+    {
+        $config = $this->getConfig();
+
+        return (bool) ($config['use-property-promotion'] ?? true);
     }
 }
