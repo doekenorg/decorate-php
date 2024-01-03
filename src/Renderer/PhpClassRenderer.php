@@ -3,8 +3,10 @@
 namespace DoekeNorg\DecoratePhp\Renderer;
 
 use DoekeNorg\DecoratePhp\Reader\Argument;
+use DoekeNorg\DecoratePhp\Reader\Arguments;
 use DoekeNorg\DecoratePhp\Reader\ClassReader;
 use DoekeNorg\DecoratePhp\Reader\Method;
+use DoekeNorg\DecoratePhp\Reader\Visibility;
 
 final class PhpClassRenderer implements Renderer
 {
@@ -22,7 +24,7 @@ final class PhpClassRenderer implements Renderer
 
         $this->class_names = [];
 
-        $methods = $this->reader->getMethods($source = $request->source());
+        $methods = $this->getMethods($request);
         $namespaces = $this->renderNamespace($destination = $request->destination());
 
         $output = trim(
@@ -30,7 +32,7 @@ final class PhpClassRenderer implements Renderer
                 '%s class %s %s %s {',
                 $this->getClassType($request),
                 $this->getBaseClassName($destination),
-                $this->reader->isInterface($source) ? 'implements' : 'extends',
+                $this->reader->isInterface($source = $request->source()) ? 'implements' : 'extends',
                 $this->sanitizeClassName($source),
             )
         );
@@ -38,7 +40,6 @@ final class PhpClassRenderer implements Renderer
         if (!$request->usePropertyPromotion()) {
             $output .= $this->renderInnerReference($request);
         }
-        $output .= $this->renderConstructor($request);
 
         foreach ($methods as $method) {
             $output .= $this->renderMethod($request, $method);
@@ -70,7 +71,19 @@ final class PhpClassRenderer implements Renderer
         }
 
         $output = PHP_EOL . "\t" . $method . ' {' . PHP_EOL;
-        if (!$method->isStatic()) {
+        if ($method->isConstructor()) {
+            // todo: Only render this call for abstract classes that have a __construct added.
+            if ($method->hasParent()) {
+                $output .= sprintf(
+                    "\t\tparent::%s(%s);" . PHP_EOL,
+                    $method->name(),
+                    $this->getArguments($request, $method)
+                );
+            }
+            if (!$request->usePropertyPromotion()) {
+                $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
+            }
+        } elseif (!$method->isStatic()) {
             $output .= "\t\t" . sprintf(
                     '%s$this->%s->%s(%s);',
                     $method->isVoid() ? '' : 'return ',
@@ -92,28 +105,6 @@ final class PhpClassRenderer implements Renderer
                 $this->sanitizeClassName($request->source()),
                 $request->variable(),
             ) . PHP_EOL;
-    }
-
-    //Todo: constructor can be part of the interface.
-    private function renderConstructor(RenderRequest $request): string
-    {
-        $type = '';
-        if ($request->usePropertyPromotion()) {
-            $type = $request->type() === ClassType::Abstract ? 'protected' : 'private';
-        }
-        $type .= ' ' . $this->sanitizeClassName($request->source());
-        $output = PHP_EOL . sprintf(
-                "\tpublic function __construct(%s $%s) {",
-                trim($type),
-                $request->variable(),
-            ) . PHP_EOL;
-
-        if (!$request->usePropertyPromotion()) {
-            $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
-        }
-        $output .= "\t}" . PHP_EOL;
-
-        return $output;
     }
 
     private function getNamespace($class_name): string
@@ -203,13 +194,61 @@ final class PhpClassRenderer implements Renderer
         if ($request->useFuncGetArgs()) {
             return '...func_get_args()';
         }
+        $methods = iterator_to_array($method);
+
+        if ($method->isConstructor()) {
+            array_shift($methods);
+        }
 
         return implode(
             ', ',
             array_map(
                 static fn(Argument $argument): string => $argument->variable(),
-                iterator_to_array($method),
+                $methods,
             ),
         );
+    }
+
+    private function getMethods(RenderRequest $request): array
+    {
+        $constructor = null;
+
+        $methods = array_filter(
+            $this->reader->getMethods($request->source()),
+            static function (Method $method) use (&$constructor): bool {
+                if ($method->isConstructor()) {
+                    $constructor = $method;
+                    return false;
+                }
+
+                return true;
+            },
+        );
+
+        $type = null;
+        if ($request->usePropertyPromotion()) {
+            $type = $request->type() === ClassType::Abstract ? Visibility::Protected : Visibility::Private;
+        }
+
+        $inner = new Argument(
+            $request->variable(),
+            $this->sanitizeClassName($request->source()),
+            null,
+            false,
+            $type,
+        );
+
+        $arguments = $constructor !== null ? iterator_to_array($constructor) : [];
+        $constructor = new Method(
+            '__construct',
+            new Arguments($inner, ...$arguments),
+            Visibility::Public,
+            null,
+            false,
+            false,
+            $constructor !== null,
+        );
+
+        return array_merge([$constructor], $methods);
     }
 }

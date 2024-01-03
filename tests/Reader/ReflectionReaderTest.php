@@ -4,6 +4,7 @@ namespace DoekeNorg\DecoratePhp\Tests\Reader;
 
 use Acme\AbstractClass;
 use Acme\BasicInterface;
+use Acme\ConstructorInterface;
 use Acme\ExtendingInterface;
 use DoekeNorg\DecoratePhp\Reader\Method;
 use DoekeNorg\DecoratePhp\Reader\ReflectionReader;
@@ -13,7 +14,7 @@ final class ReflectionReaderTest extends TestCase
 {
     public function test_it_can_read_methods_off_an_interface(): void
     {
-        require_once dirname(__FILE__, 2) . '/assets/BasicInterface.php';
+        require_once dirname(__FILE__, 2) . '/assets/classes/BasicInterface.php';
         $reader = new ReflectionReader();
 
         self::assertSame(
@@ -33,8 +34,8 @@ final class ReflectionReaderTest extends TestCase
 
     public function test_it_can_read_inherited_methods(): void
     {
-        require_once dirname(__FILE__, 2) . '/assets/BasicInterface.php';
-        require_once dirname(__FILE__, 2) . '/assets/ExtendingInterface.php';
+        require_once dirname(__FILE__, 2) . '/assets/classes/BasicInterface.php';
+        require_once dirname(__FILE__, 2) . '/assets/classes/ExtendingInterface.php';
 
         $reader = new ReflectionReader();
 
@@ -56,7 +57,7 @@ final class ReflectionReaderTest extends TestCase
 
     public function test_it_can_read_abstract_classes(): void
     {
-        require_once dirname(__FILE__, 2) . '/assets/AbstractClass.php';
+        require_once dirname(__FILE__, 2) . '/assets/classes/AbstractClass.php';
         $reader = new ReflectionReader();
 
         self::assertSame(
@@ -68,5 +69,16 @@ final class ReflectionReaderTest extends TestCase
                 $reader->getMethods(AbstractClass::class),
             ),
         );
+    }
+
+    public function test_it_can_read_a_constructor(): void
+    {
+        require_once dirname(__FILE__, 2) . '/assets/classes/ConstructorInterface.php';
+        $reader = new ReflectionReader();
+        $methods = $reader->getMethods(ConstructorInterface::class);
+
+        self::assertCount(2, $methods);
+        self::assertTrue($methods[0]->isConstructor());
+        self::assertFalse($methods[1]->isConstructor());
     }
 }

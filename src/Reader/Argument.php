@@ -9,12 +9,14 @@ final class Argument implements \Stringable
         private readonly ?string $type = null,
         private readonly mixed $default_value = null,
         private readonly bool $is_variadic = false,
+        private readonly ?Visibility $visibility = null,
     ) {
     }
 
     public function __toString(): string
     {
         return trim(
+            ((string) $this->visibility?->value) . ' ' .
             ($this->type ?: '') . ' '
             . ($this->is_variadic ? '...' : '')
             . '$' . $this->name

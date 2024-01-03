@@ -15,6 +15,7 @@ final class Method implements \Stringable, \IteratorAggregate
         private readonly ?string $return_type = null,
         private readonly bool $is_static = false,
         private readonly bool $is_final = false,
+        private readonly bool $has_parent = false,
     ) {
     }
 
@@ -42,7 +43,7 @@ final class Method implements \Stringable, \IteratorAggregate
 
     public function isVoid(): bool
     {
-        return $this->return_type === 'void';
+        return $this->return_type === 'void' || $this->isConstructor();
     }
 
     public function isStatic(): bool
@@ -50,9 +51,19 @@ final class Method implements \Stringable, \IteratorAggregate
         return $this->is_static;
     }
 
+    public function isConstructor(): bool
+    {
+        return $this->name === '__construct';
+    }
+
     public function hasArguments(): bool
     {
         return count($this->arguments);
+    }
+
+    public function hasParent(): bool
+    {
+        return $this->has_parent;
     }
 
     public function getIterator(): \Traversable

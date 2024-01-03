@@ -16,11 +16,7 @@ final class ReflectionReader implements ClassReader
             throw new ClassNotFound();
         }
 
-        $methods = $class->getMethods();
-
-        if ($this->isAbstract($class_name)) {
-            $methods = array_filter($methods, $this->removeFinalMethods(...));
-        }
+        $methods = array_filter($class->getMethods(), $this->removeFinalMethods(...));
 
         return array_values(array_map($this->createMethodFromReflection(...), $methods));
     }
