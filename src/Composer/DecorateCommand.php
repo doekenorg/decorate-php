@@ -25,7 +25,7 @@ final class DecorateCommand extends BaseCommand
     {
         $this->setName('decorate');
         $this->setDescription('Decorate an interface or abstract class');
-        $this->addArgument('base-class', InputArgument::REQUIRED, 'The class to decorate.');
+        $this->addArgument('source-class', InputArgument::REQUIRED, 'The class to decorate.');
         $this->addArgument('destination-class', InputArgument::REQUIRED, 'The full classname destination.');
         $this->addArgument('variable', InputArgument::OPTIONAL, 'The inner variable name.');
         $this->addOption(
@@ -88,13 +88,13 @@ final class DecorateCommand extends BaseCommand
     private function createRequest(InputInterface $input): RenderRequest
     {
         $config = $this->getConfig();
-        $base_class = $input->getArgument('base-class');
+        $source_class = $input->getArgument('source-class');
         $destination_class = $input->getArgument('destination-class');
 
         $request = match (true) {
-            $input->getOption('final') => RenderRequest::asFinal($base_class, $destination_class),
-            $input->getOption('abstract') => RenderRequest::asAbstract($base_class, $destination_class),
-            default => new RenderRequest($base_class, $destination_class),
+            $input->getOption('final') => RenderRequest::asFinal($source_class, $destination_class),
+            $input->getOption('abstract') => RenderRequest::asAbstract($source_class, $destination_class),
+            default => new RenderRequest($source_class, $destination_class),
         };
 
         if (!$this->usePropertyPromotion()) {

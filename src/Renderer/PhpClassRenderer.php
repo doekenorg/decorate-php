@@ -19,7 +19,7 @@ final class PhpClassRenderer implements Renderer
     public function render(RenderRequest $request): string
     {
         if ($this->reader->isFinal($request->source())) {
-            throw new CouldNotRender('Final classes cannot be decorated');
+            throw new CouldNotRender('Final classes cannot be decorated.');
         }
 
         $this->class_names = [];
@@ -72,7 +72,6 @@ final class PhpClassRenderer implements Renderer
 
         $output = PHP_EOL . "\t" . $method . ' {' . PHP_EOL;
         if ($method->isConstructor()) {
-            // todo: Only render this call for abstract classes that have a __construct added.
             if ($method->hasParent()) {
                 $output .= sprintf(
                     "\t\tparent::%s(%s);" . PHP_EOL,
@@ -80,6 +79,7 @@ final class PhpClassRenderer implements Renderer
                     $this->getArguments($request, $method)
                 );
             }
+
             if (!$request->usePropertyPromotion()) {
                 $output .= "\t\t" . sprintf('$this->%s = $%s;', $request->variable(), $request->variable()) . PHP_EOL;
             }

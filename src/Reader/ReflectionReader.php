@@ -117,17 +117,6 @@ final class ReflectionReader implements ClassReader
         return interface_exists($class_name);
     }
 
-    public function isAbstract(string $class_name): bool
-    {
-        try {
-            $class = (new \ReflectionClass($class_name));
-
-            return $class->isAbstract() && !$class->isInterface();
-        } catch (\ReflectionException) {
-            return false;
-        }
-    }
-
     public function isFinal(string $class_name): bool
     {
         try {

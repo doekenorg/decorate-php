@@ -11,7 +11,5 @@ interface ClassReader
 
     public function isInterface(string $class_name): bool;
 
-    public function isAbstract(string $class_name): bool;
-
     public function isFinal(string $class_name): bool;
 }
