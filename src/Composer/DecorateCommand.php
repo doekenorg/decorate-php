@@ -58,6 +58,12 @@ final class DecorateCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if (!$composer = $this->retrieveComposer()) {
+            throw new ComposerNotFound();
+        }
+
+        $this->requireAutoload($composer);
+
         try {
             $renderer = new PhpClassRenderer(new ReflectionReader());
             $request = $this->createRequest($input);
@@ -67,10 +73,6 @@ final class DecorateCommand extends BaseCommand
             if ($input->getOption('output')) {
                 $output->write($result);
                 return self::SUCCESS;
-            }
-
-            if (!$composer = $this->retrieveComposer()) {
-                throw new ComposerNotFound();
             }
 
             $writer = new PhpClassWriter(new ComposerClassResolver($composer));
@@ -173,5 +175,14 @@ final class DecorateCommand extends BaseCommand
     {
         $config = $this->getConfig();
         return (bool) ($config['use-func-get-args'] ?? false);
+    }
+
+    private function requireAutoload(Composer $composer): void
+    {
+        $root_dir = dirname($composer->getConfig()->getConfigSource()->getName());
+        $autoloader = $root_dir . '/vendor/autoload.php';
+        if (file_exists($autoloader)) {
+            require_once $autoloader;
+        }
     }
 }
