@@ -135,7 +135,12 @@ final class PhpClassRenderer implements Renderer
     private function recordClasses(string $class_name): void
     {
         $class_name = str_replace('?', '', $class_name);
-        if (in_array(trim($class_name), ['', 'bool', 'string', 'array', 'int', 'void', 'float'])) {
+
+        if (
+            !class_exists($class_name)
+            && !interface_exists($class_name)
+            && !trait_exists($class_name)
+        ) {
             return;
         }
 
