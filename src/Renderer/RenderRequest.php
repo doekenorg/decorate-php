@@ -6,7 +6,7 @@ final class RenderRequest
 {
     private ClassType $class_type;
 
-    private string $variable = 'inner';
+    private string $variable = 'next';
 
     private int $spaces = 0;
 

@@ -2,7 +2,7 @@
 
 Do you enjoy using decorators in PHP, but hate having to implement one with large amounts of methods? Then this is the
 plugin for you! You can now quickly create a (final or abstract) class from an interface with all the methods already
-implemented and forwarded to decorated instance. This little time saver lets you get on with the things you enjoy.
+implemented and forwarded to the next instance. This little time saver lets you get on with the things you enjoy.
 
 ## Installation
 
@@ -10,13 +10,13 @@ implemented and forwarded to decorated instance. This little time saver lets you
 composer global require doekenorg/decorate-php
 ```
 
-*__Notice__: it says `global` in the command!*
+*__Notice__: This is a global plugin, so don't forget `global` in the command!*
 
 ## Usage
 
-You can create a decorator in any composer enabled project. The plugin adds a `decorate` command to your `composer`
-instance. It needs a source class (the interface you want to decorate) and a target class. You can optionally provide
-the name of the variable it uses for the inner class.
+The plugin adds a `decorate` command to your `composer` instance. It needs a source class (the interface you want to
+decorate) and a target class. You can optionally provide the name of the variable it uses for the next class. Currently,
+the plugin only works for composer projects.
 
 ### Create a new decorator
 
@@ -37,19 +37,19 @@ namespace My\Namespace;
 use Package\Namespace\SomeInterface;
 
 class DestinationClass implements SomeInterface {
-    public function __construct(private SomeInterface $inner) {
+    public function __construct(private SomeInterface $next) {
     }
     
     public function any_method(string $variable, ...$variadic_variable): void {
-        $this->inner->any_method($variable, ...$variable);
+        $this->next->any_method($variable, ...$variadic_variable);
     }
 }
 ```
 
 ### Create a new decorator with a specific variable name.
 
-By default, the decorated instance is mapped to a variable called `$inner`. You can overwrite by providing it as the
-third parameter. In this example the variable will be called `$client`.
+By default, the decorated instance is mapped to a variable called `$next`. You can overwrite this by providing it as
+the third parameter. In the next example the variable will be called `$client`.
 
 ```bash
 composer decorate "Package\Namespace\ClientInterface" "My\Namespace\MyClient" "client"
@@ -67,6 +67,8 @@ use Package\Namespace\ClientInterface;
 class MyClient implements ClientInterface {
     public function __construct(private ClientInterface $client) {
     }
+
+    // ...
 }
 ```
 
@@ -78,9 +80,9 @@ The command comes with the following options:
 
 - `--spaces` will replace the indentation from tabs to `4` spaces by default. If you want 2 spaces; use `--spaces=2`.
   You can also provide a default in the global configuration (see next section).
-- `--output` will return the code to the console instead of writing it.
+- `--output` will output the code to the console instead of writing it.
 - `--overwrite` will force-overwrite the file if it already exists.
-- `--abstract` will create an `abstract` class. The `inner` variable will now be `protected` instead of `private`.
+- `--abstract` will create an `abstract` class. The `next` variable will now be `protected` instead of `private`.
 - `--final` will create a `final` class.
 
 ## Global configuration
@@ -94,18 +96,20 @@ in `~/.composer`).
   "extra": {
     "decorate-php": {
       "spaces": 4,
-      "variable": "decorated",
+      "variable": "next",
       "use-property-promotion": true,
-      "use-func-get-args": false
+      "use-func-get-args": false,
+      "use-final-class": true
     }
   }
 }
 ```
 
 - `spaces` will set the indentation to this amount of spaces by default; removing the need for `--spaces`.
-- `variable` will overwrite the default of `inner` with this value.
+- `variable` will overwrite the default of `next` with this value.
 - `use-property-promotion` whether to use property promotion in the constructor (`true` by default).
 - `use-func-get-args` whether to replace the actual arguments on the method call with `...func_get_args()`.
+- `use-final-class` whether to create a `final` class by default.
 
 ## Other information
 
@@ -126,7 +130,7 @@ creating the decorator.
 
 ### Constructors
 
-When an `abstract` class or `interface` declares a `__construct` method; it will append the inner instance as the first
+When an `abstract` class or `interface` declares a `__construct` method; it will append the next instance as the first
 argument. In case of an `abstract` class, it will also call the `parent::__construct()` method with the appropriate
 arguments.
 

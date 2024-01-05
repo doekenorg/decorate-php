@@ -93,6 +93,10 @@ final class DecorateCommand extends BaseCommand
         $source_class = $input->getArgument('source-class');
         $destination_class = $input->getArgument('destination-class');
 
+        if (!$input->getOption('abstract') && ($config['use-final-class'] ?? false)) {
+            $input->setOption('final', true);
+        }
+
         $request = match (true) {
             $input->getOption('final') => RenderRequest::asFinal($source_class, $destination_class),
             $input->getOption('abstract') => RenderRequest::asAbstract($source_class, $destination_class),
@@ -108,7 +112,7 @@ final class DecorateCommand extends BaseCommand
         }
 
         return $request
-            ->withVariable($input->getArgument('variable') ?? $config['variable'] ?? 'inner')
+            ->withVariable($input->getArgument('variable') ?? $config['variable'] ?? 'next')
             ->withSpaces($this->getSpaces($input));
     }
 
