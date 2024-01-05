@@ -1,4 +1,10 @@
-# Decorate PHP Composer plugin
+# Decorate PHP
+
+Easily create decorators and proxies with a simple (composer) command.
+
+<a href="https://packagist.org/packages/doekenorg/decorate-php" target="_blank"><img src="https://img.shields.io/packagist/v/doekenorg/decorate-php.svg?style=flat-square"/></a>
+
+---
 
 Do you enjoy using decorators in PHP, but hate having to implement one with large amounts of methods? Then this is the
 plugin for you! You can now quickly create a (final or abstract) class from an interface with all the methods already
