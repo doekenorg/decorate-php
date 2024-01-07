@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DoekeNorg\DecoratePhp\Composer;
 
 use Composer\Plugin\Capability\CommandProvider;

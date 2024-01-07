@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DoekeNorg\DecoratePhp\Renderer;
 
 use DoekeNorg\DecoratePhp\Reader\Argument;
@@ -59,8 +61,9 @@ final class PhpClassRenderer implements Renderer
 
         $output = strtr($output, $replacements);
         $uses = $this->renderUse($destination);
+        $strict = $request->declareStrict() ? 'declare(strict_types=1);' . PHP_EOL . PHP_EOL : '';
 
-        return '<?php' . PHP_EOL . $namespaces . $uses . $output;
+        return '<?php' . PHP_EOL . PHP_EOL . $strict . $namespaces . $uses . $output;
     }
 
     private function renderMethod(RenderRequest $request, Method $method): string
@@ -123,7 +126,7 @@ final class PhpClassRenderer implements Renderer
             return '';
         }
 
-        return PHP_EOL . 'namespace ' . $namespace . ';' . PHP_EOL . PHP_EOL;
+        return 'namespace ' . $namespace . ';' . PHP_EOL . PHP_EOL;
     }
 
     private function getBaseClassName(string $class_name): string

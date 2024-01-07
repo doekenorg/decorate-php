@@ -89,11 +89,10 @@ final class DecorateCommand extends BaseCommand
 
     private function createRequest(InputInterface $input): RenderRequest
     {
-        $config = $this->getConfig();
         $source_class = $input->getArgument('source-class');
         $destination_class = $input->getArgument('destination-class');
 
-        if (!$input->getOption('abstract') && ($config['use-final-class'] ?? false)) {
+        if (!$input->getOption('abstract') && $this->getConfigParam('use-final-class', false)) {
             $input->setOption('final', true);
         }
 
@@ -111,8 +110,12 @@ final class DecorateCommand extends BaseCommand
             $request = $request->withFuncGetArgs();
         }
 
+        if ($this->declareStrict()) {
+            $request = $request->withStrict();
+        }
+
         return $request
-            ->withVariable($input->getArgument('variable') ?? $config['variable'] ?? 'next')
+            ->withVariable($input->getArgument('variable') ?? $this->getConfigParam('variable', 'next'))
             ->withSpaces($this->getSpaces($input));
     }
 
@@ -138,10 +141,15 @@ final class DecorateCommand extends BaseCommand
         return $this->config;
     }
 
-    private function getSpaces(InputInterface $input): int
+    private function getConfigParam(string $param, mixed $default = null): mixed
     {
         $config = $this->getConfig();
 
+        return $config[$param] ?? $default;
+    }
+
+    private function getSpaces(InputInterface $input): int
+    {
         $spaces = $input->getOption('spaces');
 
         // If `--spaces=` was provided, the output is an empty string.
@@ -151,10 +159,10 @@ final class DecorateCommand extends BaseCommand
 
         // If no `--spaces` was provided, we use the configured default, or tabs (0).
         if ($spaces === 'empty') {
-            $spaces = ($config['spaces'] ?? 0);
+            $spaces = $this->getConfigParam('spaces', 0);
         }
 
-        $spaces ??= $config['spaces'] ?? 4;
+        $spaces ??= $this->getConfigParam('spaces', 4);
 
         return (int) $spaces;
     }
@@ -170,15 +178,17 @@ final class DecorateCommand extends BaseCommand
 
     private function usePropertyPromotion(): bool
     {
-        $config = $this->getConfig();
-
-        return (bool) ($config['use-property-promotion'] ?? true);
+        return (bool) $this->getConfigParam('use-property-promotion', true);
     }
 
     private function useFuncGetArgs(): bool
     {
-        $config = $this->getConfig();
-        return (bool) ($config['use-func-get-args'] ?? false);
+        return (bool) $this->getConfigParam('use-func-get-args', false);
+    }
+
+    private function declareStrict(): bool
+    {
+        return (bool) $this->getConfigParam('declare-strict', false);
     }
 
     private function requireAutoload(Composer $composer): void

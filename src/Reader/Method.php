@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DoekeNorg\DecoratePhp\Reader;
 
 /**
@@ -58,7 +60,7 @@ final class Method implements \Stringable, \IteratorAggregate
 
     public function hasArguments(): bool
     {
-        return count($this->arguments);
+        return count($this->arguments) > 0;
     }
 
     public function hasParent(): bool

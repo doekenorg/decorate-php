@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DoekeNorg\DecoratePhp\Renderer;
 
 final class RenderRequest
@@ -13,6 +15,8 @@ final class RenderRequest
     private bool $use_property_promotion = true;
 
     private bool $use_func_get_args = false;
+
+    private bool $declare_strict = false;
 
     public function __construct(
         private readonly string $source,
@@ -72,6 +76,11 @@ final class RenderRequest
         return $this->use_func_get_args;
     }
 
+    public function declareStrict(): bool
+    {
+        return $this->declare_strict;
+    }
+
     public function withVariable(string $variable): self
     {
         $clone = clone $this;
@@ -104,6 +113,14 @@ final class RenderRequest
     {
         $clone = clone $this;
         $clone->use_func_get_args = true;
+
+        return $clone;
+    }
+
+    public function withStrict(): self
+    {
+        $clone = clone $this;
+        $clone->declare_strict = true;
 
         return $clone;
     }

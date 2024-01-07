@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace DoekeNorg\DecoratePhp\Composer;
 
 use DoekeNorg\DecoratePhp\DecoratorException;
