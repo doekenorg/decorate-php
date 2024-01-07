@@ -73,7 +73,8 @@ final class ReflectionReader implements ClassReader
 
     private function getReturnType(\ReflectionMethod $method): ?string
     {
-        if (!$return_type = $method->getReturnType()) {
+        $return_type = $method->getReturnType();
+        if (!$return_type instanceof \ReflectionNamedType) {
             return null;
         }
 

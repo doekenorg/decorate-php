@@ -54,9 +54,12 @@ final class PhpClassRenderer implements Renderer
         $output .= '}' . PHP_EOL;
 
         $replacements = [];
-        foreach ($this->class_names as $class_name => $replacement) {
-            $replacements[$class_name] = $replacement;
-            $replacements['\\' . $class_name] = $replacement;
+
+        if (!empty($this->class_names)) {
+            foreach ($this->class_names as $class_name => $replacement) {
+                $replacements[$class_name] = $replacement;
+                $replacements['\\' . $class_name] = $replacement;
+            }
         }
 
         $output = strtr($output, $replacements);
