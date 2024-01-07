@@ -12,12 +12,11 @@ final class ReflectionReader implements ClassReader
 
     public function getMethods(string $class_name): array
     {
-        try {
-            $class = new \ReflectionClass($class_name);
-        } catch (ReflectionException) {
+        if (!class_exists($class_name)) {
             throw new ClassNotFound();
         }
 
+        $class = new \ReflectionClass($class_name);
         $methods = array_filter($class->getMethods(), $this->removeFinalMethods(...));
 
         return array_values(array_map($this->createMethodFromReflection(...), $methods));
@@ -120,6 +119,9 @@ final class ReflectionReader implements ClassReader
         return interface_exists($class_name);
     }
 
+    /**
+     * @param class-string $class_name
+     */
     public function isFinal(string $class_name): bool
     {
         try {

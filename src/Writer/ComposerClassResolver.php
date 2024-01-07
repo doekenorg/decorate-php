@@ -31,6 +31,10 @@ final class ComposerClassResolver implements PathResolver
         $root_dir = dirname($this->composer->getConfig()->getConfigSource()->getName());
 
         foreach ($autoload['psr-4'] as $namespace => $path) {
+            if (is_array($path)) {
+                $path = reset($path) ?: '';
+            }
+
             $path = rtrim($path, DIRECTORY_SEPARATOR);
 
             if (!str_starts_with($class_name, $namespace)) {
