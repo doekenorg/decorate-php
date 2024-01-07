@@ -8,7 +8,7 @@ namespace DoekeNorg\DecoratePhp\Reader;
  * Represents a method on the interface.
  * @since $ver$
  */
-final class Method implements \Stringable, \IteratorAggregate
+final class Method implements \Stringable
 {
     public function __construct(
         private readonly string $name,
@@ -68,8 +68,11 @@ final class Method implements \Stringable, \IteratorAggregate
         return $this->has_parent;
     }
 
-    public function getIterator(): \Traversable
+    /**
+     * @return Argument[]
+     */
+    public function getArguments(): array
     {
-        return $this->arguments;
+        return $this->arguments->getArguments();
     }
 }

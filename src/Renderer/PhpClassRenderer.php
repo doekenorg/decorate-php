@@ -12,6 +12,9 @@ use DoekeNorg\DecoratePhp\Reader\Visibility;
 
 final class PhpClassRenderer implements Renderer
 {
+    /**
+     * @var array<string, string>
+     */
     private array $class_names = [];
 
     public function __construct(private readonly ClassReader $reader)
@@ -72,8 +75,8 @@ final class PhpClassRenderer implements Renderer
     private function renderMethod(RenderRequest $request, Method $method): string
     {
         $this->recordClasses($method->returnType());
-        foreach ($method as $argument) {
-            $this->recordClasses((string) $argument->type());
+        foreach ($method->getArguments() as $argument) {
+            $this->recordClasses($argument->type());
         }
 
         $output = PHP_EOL . "\t" . $method . ' {' . PHP_EOL;
@@ -113,7 +116,7 @@ final class PhpClassRenderer implements Renderer
             ) . PHP_EOL;
     }
 
-    private function getNamespace($class_name): string
+    private function getNamespace(string $class_name): string
     {
         $base_class_name = $this->getBaseClassName($class_name);
         if ($class_name === $base_class_name) {
@@ -205,21 +208,25 @@ final class PhpClassRenderer implements Renderer
         if ($request->useFuncGetArgs()) {
             return '...func_get_args()';
         }
-        $methods = iterator_to_array($method);
+
+        $arguments = $method->getArguments();
 
         if ($method->isConstructor()) {
-            array_shift($methods);
+            array_shift($arguments);
         }
 
         return implode(
             ', ',
             array_map(
                 static fn(Argument $argument): string => $argument->variable(),
-                $methods,
+                $arguments,
             ),
         );
     }
 
+    /**
+     * @return Method[]
+     */
     private function getMethods(RenderRequest $request): array
     {
         $constructor = null;
@@ -249,7 +256,7 @@ final class PhpClassRenderer implements Renderer
             $type,
         );
 
-        $arguments = $constructor !== null ? iterator_to_array($constructor) : [];
+        $arguments = $constructor !== null ? $constructor->getArguments() : [];
         $constructor = new Method(
             '__construct',
             new Arguments($inner, ...$arguments),

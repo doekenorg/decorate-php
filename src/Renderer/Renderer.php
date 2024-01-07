@@ -9,5 +9,5 @@ interface Renderer
     /**
      * @throws CouldNotRender
      */
-    public function render(RenderRequest $request);
+    public function render(RenderRequest $request): mixed;
 }

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace DoekeNorg\DecoratePhp\Reader;
 
-use ArrayIterator;
-use Traversable;
-
-final class Arguments implements \Stringable, \Countable, \IteratorAggregate
+final class Arguments implements \Stringable, \Countable
 {
+    /**
+     * @var Argument[]
+     */
     private array $arguments;
 
     public function __construct(Argument ...$arguments)
@@ -29,8 +29,11 @@ final class Arguments implements \Stringable, \Countable, \IteratorAggregate
         return count($this->arguments);
     }
 
-    public function getIterator(): Traversable
+    /**
+     * @return Argument[]
+     */
+    public function getArguments():array
     {
-        return new ArrayIterator($this->arguments);
+        return $this->arguments;
     }
 }

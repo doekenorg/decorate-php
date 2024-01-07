@@ -19,6 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class DecorateCommand extends BaseCommand
 {
+    /**
+     * @var array<int, mixed>
+     */
     private array $config;
 
     protected function configure(): void
@@ -119,6 +122,9 @@ final class DecorateCommand extends BaseCommand
             ->withSpaces($this->getSpaces($input));
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getConfig(): array
     {
         if (!isset($this->config)) {
