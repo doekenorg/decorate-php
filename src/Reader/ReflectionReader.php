@@ -12,8 +12,8 @@ final class ReflectionReader implements ClassReader
 
     public function getMethods(string $class_name): array
     {
-        if (!class_exists($class_name)) {
-            throw new ClassNotFound();
+        if (!class_exists($class_name) && !interface_exists($class_name)) {
+            throw new ClassNotFound($class_name);
         }
 
         $class = new \ReflectionClass($class_name);

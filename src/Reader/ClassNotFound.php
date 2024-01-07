@@ -9,10 +9,11 @@ use DoekeNorg\DecoratePhp\DecoratorException;
 final class ClassNotFound extends DecoratorException
 {
     public function __construct(
-        string $message = 'Class could not be found.',
+        string $class_name,
+        string $message = 'Class "%s" could not be found.',
         int $code = 0,
         ?\Throwable $previous = null
     ) {
-        parent::__construct($message, $code, $previous);
+        parent::__construct(sprintf($message, $class_name), $code, $previous);
     }
 }

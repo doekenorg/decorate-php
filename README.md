@@ -101,6 +101,7 @@ in `~/.composer`).
   //...
   "extra": {
     "decorate-php": {
+      "declare-strict": true,
       "spaces": 4,
       "variable": "next",
       "use-property-promotion": true,
@@ -111,6 +112,7 @@ in `~/.composer`).
 }
 ```
 
+- `declare-strict` will add a `declare(strict_types=1);` declaration to the created file.
 - `spaces` will set the indentation to this amount of spaces by default; removing the need for `--spaces`.
 - `variable` will overwrite the default of `next` with this value.
 - `use-property-promotion` whether to use property promotion in the constructor (`true` by default).
