@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class DecorateCommand extends BaseCommand
 {
     /**
-     * @var array<int, mixed>
+     * @var array<string, mixed>
      */
     private array $config;
 
@@ -79,7 +79,7 @@ final class DecorateCommand extends BaseCommand
             }
 
             $writer = new PhpClassWriter(new ComposerClassResolver($composer));
-            $writer->writeClass($request->destination(), $result, $input->getOption('overwrite'));
+            $writer->writeClass($request->destination(), $result, (bool) $input->getOption('overwrite'));
 
             $output->writeln('Decorator created successfully');
 
@@ -92,8 +92,8 @@ final class DecorateCommand extends BaseCommand
 
     private function createRequest(InputInterface $input): RenderRequest
     {
-        $source_class = $input->getArgument('source-class');
-        $destination_class = $input->getArgument('destination-class');
+        $source_class = (string) $input->getArgument('source-class');
+        $destination_class = (string) $input->getArgument('destination-class');
 
         if (!$input->getOption('abstract') && $this->getConfigParam('use-final-class', false)) {
             $input->setOption('final', true);
@@ -118,8 +118,13 @@ final class DecorateCommand extends BaseCommand
         }
 
         return $request
-            ->withVariable($input->getArgument('variable') ?? $this->getConfigParam('variable', 'next'))
+            ->withVariable($this->getVariable($input))
             ->withSpaces($this->getSpaces($input));
+    }
+
+    private function getVariable(InputInterface $input): string
+    {
+        return (string) ($input->getArgument('variable') ?? $this->getConfigParam('variable', 'next'));
     }
 
     /**
